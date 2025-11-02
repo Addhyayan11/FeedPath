@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FeedPath | Smart Food Donation Portal</title>
+
+  <!-- Google Fonts & Material Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:"Poppins",sans-serif;}
+    body{color:#333;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;}
+    body::before{
+      content:"";position:fixed;top:0;left:0;right:0;bottom:0;
+      background:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1600&q=80') no-repeat center/cover;
+      filter:blur(8px) brightness(0.7);z-index:-2;
+    }
+    body::after{
+      content:"";position:fixed;top:0;left:0;right:0;bottom:0;
+      background:rgba(255,255,255,0.25);z-index:-1;
+    }
+
+    .navbar{
+      background:rgba(255,255,255,0.8);padding:15px 35px;
+      display:flex;justify-content:space-between;align-items:center;
+      box-shadow:0 4px 10px rgba(0,0,0,0.1);
+      backdrop-filter:blur(10px);position:sticky;top:0;z-index:10;
+      border-bottom:1px solid rgba(255,255,255,0.3);
+    }
+    .logo{font-weight:800;font-size:1.8rem;color:#2e7d32;}
+
+    .container{
+      display:none;flex:1;align-items:center;justify-content:center;
+      padding:50px 20px;opacity:0;transform:translateY(20px);
+      transition:opacity 0.6s ease, transform 0.6s ease;
+    }
+    .active{display:flex !important;opacity:1 !important;transform:translateY(0) !important;}
+
+    .form-box{
+      background:rgba(255,255,255,0.88);
+      padding:40px 30px;border-radius:20px;
+      box-shadow:0 8px 25px rgba(0,0,0,0.25);
+      width:100%;max-width:420px;
+      backdrop-filter:blur(12px);
+    }
+    .form-box h1{text-align:center;color:#2e7d32;margin-bottom:20px;}
+    .form-box label{font-weight:600;color:#2e7d32;margin-top:10px;display:block;}
+    .form-box input,.form-box select,.form-box textarea{
+      width:100%;padding:12px;margin-top:5px;
+      border:2px solid #c5e1a5;border-radius:10px;
+      font-size:15px;background:#fff;
+    }
+    .address-container{position:relative;}
+    .address-container::before{
+      content:"location_on";font-family:"Material Icons";color:red;
+      position:absolute;left:10px;top:50%;transform:translateY(-50%);
+      font-size:22px;
+    }
+    .address-container input{padding-left:40px;}
+
+    .gstin-container{position:relative;}
+    .gstin-status{
+      position:absolute;right:12px;top:50%;transform:translateY(-50%);
+      font-size:18px;font-weight:bold;
+    }
+    .gstin-valid{color:green;}
+    .gstin-invalid{color:red;}
+
+    .form-box button{
+      width:100%;padding:14px;margin-top:20px;background:#2e7d32;color:white;
+      font-weight:700;border:none;border-radius:10px;cursor:pointer;transition:background 0.3s;
+    }
+    .form-box button:hover{background:#66bb6a;}
+    .link-btn{
+      background:none;border:none;color:#2e7d32;
+      font-weight:600;cursor:pointer;margin-top:10px;text-decoration:underline;
+    }
+
+    .forgot-container{text-align:right;margin-top:8px;margin-bottom:-8px;}
+    .forgot-btn{
+      background:none;border:none;color:#d32f2f;font-weight:500;font-size:0.9rem;
+      cursor:pointer;text-decoration:none;transition:color 0.3s ease;
+    }
+    .forgot-btn:hover{color:#2e7d32;text-decoration:underline;}
+
+    .plans{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;}
+    .plan-card{
+      background:white;padding:25px;border-radius:15px;
+      width:280px;box-shadow:0 8px 20px rgba(0,0,0,0.2);
+      text-align:center;
+    }
+    .plan-card h2{color:#2e7d32;margin-bottom:10px;}
+    .plan-card button{
+      background:#2e7d32;color:white;padding:10px 20px;margin-top:10px;
+      border-radius:10px;font-weight:600;border:none;cursor:pointer;
+    }
+    .dashboard{
+      background:rgba(255,255,255,0.85);padding:40px 25px;border-radius:16px;
+      box-shadow:0 8px 25px rgba(0,0,0,0.25);text-align:center;max-width:900px;
+    }
+    footer{text-align:center;padding:15px;background:rgba(255,255,255,0.75);
+      color:#2e7d32;font-weight:500;}
+
+    /* NGO Dashboard Modern Layout */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      width: 100%;
+    }
+
+    .dashboard-header h1 {
+      color: white;
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .cart-indicator {
+      position: relative;
+      background: white;
+      padding: 12px 20px;
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+
+    .cart-indicator:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    .cart-count {
+      background: #ff4757;
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .content-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 30px;
+      align-items: start;
+      width: 100%;
+    }
+
+    /* Food Grid */
+    .food-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 25px;
+    }
+
+    .food-card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .food-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+
+    .food-image {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+    }
+
+    .food-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .food-card:hover .food-image img {
+      transform: scale(1.05);
+    }
+
+    .food-badge {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      backdrop-filter: blur(10px);
+    }
+
+    .food-badge.veg {
+      background: rgba(46, 125, 50, 0.9);
+      color: white;
+    }
+
+    .food-badge.non-veg {
+      background: rgba(198, 40, 40, 0.9);
+      color: white;
+    }
+
+    .food-content {
+      padding: 20px;
+    }
+
+    .food-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 10px;
+    }
+
+    .food-header h3 {
+      color: #2d3748;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .rating {
+      background: #fff8e1;
+      color: #ffa000;
+      padding: 4px 8px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .location, .time {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+
+    .food-items {
+      margin: 15px 0;
+      border-top: 1px solid #eee;
+      border-bottom: 1px solid #eee;
+      padding: 15px 0;
+    }
+
+    .food-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      font-size: 0.9rem;
+    }
+
+    .food-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+    }
+
+    .feeds-info {
+      color: #666;
+      font-size: 0.85rem;
+    }
+
+    .add-to-cart-btn {
+      background: linear-gradient(135deg, #2e7d32, #4caf50);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .add-to-cart-btn:hover {
+      background: linear-gradient(135deg, #1b5e20, #2e7d32);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
+    }
+
+    /* Food Type Filters */
+    .food-filters {
+      margin: 20px 0;
+      text-align: center;
+      width: 100%;
+    }
+
+    .filter-btn {
+      background: #e8f5e9;
+      border: 2px solid #2e7d32;
+      color: #2e7d32;
+      padding: 10px 20px;
+      margin: 0 8px;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover {
+      background: #2e7d32;
+      color: white;
+    }
+
+    /* Cart Sidebar */
+    .cart-sidebar {
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 20px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .cart-header h3 {
+      color: #2d3748;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .close-cart {
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 50%;
+      transition: background 0.3s ease;
+    }
+
+    .close-cart:hover {
+      background: #f0f0f0;
+    }
+
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+
+    .empty-cart {
+      text-align: center;
+      color: #999;
+      padding: 40px 20px;
+    }
+
+    .empty-cart .material-icons {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      opacity: 0.5;
+    }
+
+    .cart-item {
+      display: flex;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .cart-item-image {
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-right: 15px;
+    }
+
+    .cart-item-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cart-item-details {
+      flex: 1;
+    }
+
+    .cart-item-details h4 {
+      color: #2d3748;
+      font-size: 0.95rem;
+      margin-bottom: 2px;
+    }
+
+    .restaurant-name {
+      color: #666;
+      font-size: 0.8rem;
+      margin-bottom: 5px;
+      font-style: italic;
+    }
+
+    .cart-item-type {
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+
+    .cart-item-type.veg {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .cart-item-type.non-veg {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    /* Quantity Controls */
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .quantity-btn {
+      background: #f0f0f0;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .quantity-btn:hover {
+      background: #2e7d32;
+      color: white;
+    }
+
+    .quantity {
+      font-weight: 600;
+      color: #2e7d32;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .remove-item {
+      background: none;
+      border: none;
+      color: #ff4757;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 50%;
+      transition: background 0.3s ease;
+    }
+
+    .remove-item:hover {
+      background: #ffebee;
+    }
+
+    .cart-summary {
+      margin-bottom: 20px;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .summary-item:last-child {
+      border-bottom: none;
+      font-weight: 600;
+      color: #2e7d32;
+    }
+
+    .request-pickup-btn {
+      background: linear-gradient(135deg, #2e7d32, #4caf50);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 15px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .request-pickup-btn:enabled:hover {
+      background: linear-gradient(135deg, #1b5e20, #2e7d32);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(46, 125, 50, 0.4);
+    }
+
+    .request-pickup-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    #dishSummary{margin-top:15px;background:#e8f5e9;padding:10px;border-radius:10px;display:none;}
+  </style>
+</head>
+
+<body>
+  <nav class="navbar"><div class="logo">FeedPath</div></nav>
+
+  <!-- Sign-Up Page -->
+  <div class="container active" id="registerPage">
+    <div class="form-box">
+      <h1>Sign Up</h1>
+      <label>I am a:</label>
+      <select id="userType" onchange="toggleGSTIN()">
+        <option value="">Select Type</option>
+        <option value="restaurant">Restaurant/Hotel/Food Provide</option>
+        <option value="ngo">NGO</option>
+      </select>
+      <label>Organization Name</label>
+      <input type="text" id="orgName" placeholder="Enter organization name">
+      <div id="gstinContainer" class="gstin-container" style="display:none;">
+        <label>GSTIN Number</label>
+        <input type="text" id="gstin" placeholder="Enter GSTIN (e.g. 22AAAAA0000A1Z5)" maxlength="15" oninput="validateGSTIN(this)">
+        <span id="gstinStatus" class="gstin-status"></span>
+      </div>
+      <label>Address</label>
+      <div class="address-container"><input type="text" id="address" placeholder="Enter address"></div>
+      <label>Pincode</label>
+      <input type="text" id="pincode" placeholder="Enter 6-digit pincode" maxlength="6">
+      <label>Phone</label>
+      <input type="text" id="phone" placeholder="Enter 10-digit phone number" maxlength="10">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Enter password">
+      <button onclick="registerUser()">Sign Up</button>
+      <button class="link-btn" onclick="showLogin()">Already registered? Login</button>
+    </div>
+  </div>
+
+  <!-- Login -->
+  <div class="container" id="loginPage">
+    <div class="form-box">
+      <h1>Login</h1>
+      <label>Phone</label><input type="text" id="loginPhone" placeholder="Enter phone number">
+      <label>Password</label><input type="password" id="loginPassword" placeholder="Enter password">
+      <div class="forgot-container"><button class="forgot-btn" onclick="showForgotPassword()">Forgot Password?</button></div>
+      <button onclick="loginUser()">Login</button>
+      <button class="link-btn" onclick="showRegister()">New user? Sign Up</button>
+    </div>
+  </div>
+
+  <!-- Forgot Password -->
+  <div class="container" id="forgotPage">
+    <div class="form-box">
+      <h1>Reset Password</h1>
+      <label>Registered Phone Number</label>
+      <input type="text" id="resetPhone" placeholder="Enter registered phone number">
+      <label>New Password</label>
+      <input type="password" id="newPassword" placeholder="Enter new password">
+      <button onclick="resetPassword()">Reset Password</button>
+      <button class="link-btn" onclick="showLogin()">Back to Login</button>
+    </div>
+  </div>
+
+  <!-- Subscription -->
+  <div class="container" id="subscriptionPage">
+    <div class="dashboard">
+      <h2>Choose Your Subscription Plan</h2>
+      <p>Get access to premium services:</p>
+      <ul style="text-align:left;display:inline-block;margin-top:10px;">
+        <li>✅ META Ads for promotion</li>
+        <li>✅ Positive restaurant reviews</li>
+      </ul>
+      <div class="plans">
+        <div class="plan-card">
+          <h2>₹8,999</h2><p>1 Month Plan</p>
+          <button onclick="selectPlan('1 Month - ₹8999')">Subscribe</button>
+        </div>
+        <div class="plan-card">
+          <h2>₹15,999</h2><p>3 Month Plan</p>
+          <button onclick="selectPlan('3 Months - ₹15999')">Subscribe</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Restaurant Dashboard -->
+  <div class="container" id="dashboardPage">
+    <div class="dashboard">
+      <h2>Welcome to FeedPath Dashboard</h2>
+      <h3>Post Food for Pickup</h3>
+      <p>Have surplus food? Submit details for pickup.</p>
+      <a href="#" onclick="showPickup()">Post Now</a>
+    </div>
+  </div>
+
+  <!-- NGO Dashboard with Cart -->
+  <div class="container" id="ngoDashboardPage">
+    <div class="dashboard" style="width:100%;max-width:1300px;">
+      <div class="dashboard-header">
+        <h1>Available Food Donations</h1>
+        <div class="cart-indicator" onclick="toggleCart()">
+          <span class="material-icons">shopping_cart</span>
+          <span class="cart-count" id="cartCount">0</span>
+        </div>
+      </div>
+
+      <!-- Food Type Filters -->
+      <div class="food-filters">
+        <button class="filter-btn active" onclick="filterFood('all')">All</button>
+        <button class="filter-btn" onclick="filterFood('veg')">🍃 Vegetarian</button>
+        <button class="filter-btn" onclick="filterFood('non-veg')">🍗 Non-Vegetarian</button>
+      </div>
+
+      <div class="content-wrapper">
+        <!-- Food Items Grid -->
+        <div class="food-grid">
+          <!-- Vegetarian Food Card -->
+          <div class="food-card" data-type="veg" data-id="1">
+            <div class="food-image">
+              <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80" alt="Vegetarian Food" />
+              <div class="food-badge veg">🍃 VEG</div>
+            </div>
+            <div class="food-content">
+              <div class="food-header">
+                <h3>Fresh & Healthy Meals</h3>
+                <div class="rating">⭐ 4.5</div>
+              </div>
+              <p class="location">📍 Connaught Place, New Delhi</p>
+              <p class="time">⏰ Ready in: 30 mins</p>
+              
+              <div class="food-items">
+                <div class="food-item">
+                  <span>🍛 Veg Biryani</span>
+                  <span>10 plates</span>
+                </div>
+                <div class="food-item">
+                  <span>🥗 Fresh Salads</span>
+                  <span>5 bowls</span>
+                </div>
+                <div class="food-item">
+                  <span>🍞 Roti Packs</span>
+                  <span>15 pieces</span>
+                </div>
+              </div>
+              
+              <div class="food-footer">
+                <div class="feeds-info">👥 Feeds 25-30 people</div>
+                <button class="add-to-cart-btn" onclick="addToCart(1)">
+                  <span class="material-icons">add_shopping_cart</span>
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Non-Vegetarian Food Card -->
+          <div class="food-card" data-type="non-veg" data-id="2">
+            <div class="food-image">
+              <img src="https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80" alt="Non-Veg Food" />
+              <div class="food-badge non-veg">🍗 NON-VEG</div>
+            </div>
+            <div class="food-content">
+              <div class="food-header">
+                <h3>Protein Rich Meals</h3>
+                <div class="rating">⭐ 4.2</div>
+              </div>
+              <p class="location">📍 Khan Market, New Delhi</p>
+              <p class="time">⏰ Ready in: 45 mins</p>
+              
+              <div class="food-items">
+                <div class="food-item">
+                  <span>🍗 Chicken Curry</span>
+                  <span>8 plates</span>
+                </div>
+                <div class="food-item">
+                  <span>🍚 Biryani Rice</span>
+                  <span>12 plates</span>
+                </div>
+                <div class="food-item">
+                  <span>🥘 Mutton Dishes</span>
+                  <span>6 plates</span>
+                </div>
+              </div>
+              
+              <div class="food-footer">
+                <div class="feeds-info">👥 Feeds 20-25 people</div>
+                <button class="add-to-cart-btn" onclick="addToCart(2)">
+                  <span class="material-icons">add_shopping_cart</span>
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Another Vegetarian Card -->
+          <div class="food-card" data-type="veg" data-id="3">
+            <div class="food-image">
+              <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" alt="North Indian Thali" />
+              <div class="food-badge veg">🍃 VEG</div>
+            </div>
+            <div class="food-content">
+              <div class="food-header">
+                <h3>North Indian Thali</h3>
+                <div class="rating">⭐ 4.0</div>
+              </div>
+              <p class="location">📍 Rajouri Garden, Delhi</p>
+              <p class="time">⏰ Ready in: 20 mins</p>
+              
+              <div class="food-items">
+                <div class="food-item">
+                  <span>🍛 Dal Makhani</span>
+                  <span>8 plates</span>
+                </div>
+                <div class="food-item">
+                  <span>🍞 Roti Packs</span>
+                  <span>15 pieces</span>
+                </div>
+                <div class="food-item">
+                  <span>🥣 Rice Bowls</span>
+                  <span>10 plates</span>
+                </div>
+              </div>
+              
+              <div class="food-footer">
+                <div class="feeds-info">👥 Feeds 15-20 people</div>
+                <button class="add-to-cart-btn" onclick="addToCart(3)">
+                  <span class="material-icons">add_shopping_cart</span>
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Another Non-Veg Card -->
+          <div class="food-card" data-type="non-veg" data-id="4">
+            <div class="food-image">
+              <img src="https://images.unsplash.com/photo-1606755962773-d324e38334b4?auto=format&fit=crop&w=400&q=80" alt="Non-Veg Platter" />
+              <div class="food-badge non-veg">🍗 NON-VEG</div>
+            </div>
+            <div class="food-content">
+              <div class="food-header">
+                <h3>Sea Food Special</h3>
+                <div class="rating">⭐ 4.7</div>
+              </div>
+              <p class="location">📍 Saket, New Delhi</p>
+              <p class="time">⏰ Ready in: 35 mins</p>
+              
+              <div class="food-items">
+                <div class="food-item">
+                  <span>🐟 Fish Curry</span>
+                  <span>6 plates</span>
+                </div>
+                <div class="food-item">
+                  <span>🍤 Prawn Masala</span>
+                  <span>8 plates</span>
+                </div>
+                <div class="food-item">
+                  <span>🍚 Steamed Rice</span>
+                  <span>10 plates</span>
+                </div>
+              </div>
+              
+              <div class="food-footer">
+                <div class="feeds-info">👥 Feeds 18-22 people</div>
+                <button class="add-to-cart-btn" onclick="addToCart(4)">
+                  <span class="material-icons">add_shopping_cart</span>
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shopping Cart Sidebar -->
+        <div class="cart-sidebar" id="cartSidebar">
+          <div class="cart-header">
+            <h3>🛒 Pickup Cart</h3>
+            <button class="close-cart" onclick="toggleCart()">
+              <span class="material-icons">close</span>
+            </button>
+          </div>
+          
+          <div class="cart-items" id="cartItems">
+            <!-- Cart items will be dynamically added here -->
+            <div class="empty-cart" id="emptyCart">
+              <span class="material-icons">shopping_cart</span>
+              <p>Your cart is empty</p>
+              <p>Add food items to request pickup</p>
+            </div>
+          </div>
+          
+          <div class="cart-footer">
+            <div class="cart-summary">
+              <div class="summary-item">
+                <span>Total Items:</span>
+                <span id="totalItems">0</span>
+              </div>
+              <div class="summary-item">
+                <span>Total People Fed:</span>
+                <span id="totalPeople">0</span>
+              </div>
+            </div>
+            <button class="request-pickup-btn" id="requestPickupBtn" onclick="requestPickupFromCart()" disabled>
+              <span class="material-icons">delivery_dining</span>
+              Request Pickup
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SMART Pickup Page -->
+  <div class="container" id="pickupPage">
+    <div class="form-box">
+      <h1>Request Pickup (Restaurant)</h1>
+
+      <label>Number of Dishes</label>
+      <input type="number" id="dishCount" placeholder="e.g., 2" min="1" required>
+      <button onclick="enterDishes()">Enter Dish Names</button>
+
+      <div id="dishSummary"></div>
+
+      <label>Pickup Time</label>
+      <input type="datetime-local" id="pickupTime" required>
+      <label>Additional Notes</label>
+      <textarea id="notes" placeholder="Optional" rows="3"></textarea>
+      <button onclick="submitPickup()">Submit Pickup</button>
+      <p id="successMsg" style="color:#2e7d32;font-weight:600;margin-top:10px;display:none;">✅ Pickup submitted successfully!</p>
+      <button class="link-btn" onclick="showDashboard()">Back to Dashboard</button>
+    </div>
+  </div>
+
+  <footer>© 2025 FeedPath | Connecting food givers and receivers</footer>
+
+  <script>
+    // ==================== BASIC NAVIGATION ====================
+    function switchPage(id){
+      document.querySelectorAll('.container').forEach(c=>c.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function showRegister(){switchPage('registerPage');}
+    function showLogin(){switchPage('loginPage');}
+    function showForgotPassword(){switchPage('forgotPage');}
+    function showDashboard(){switchPage('dashboardPage');}
+    function showPickup(){switchPage('pickupPage');}
+    function showSubscription(){switchPage('subscriptionPage');}
+    function showNGODashboard(){switchPage('ngoDashboardPage');}
+
+    // ==================== CART MANAGEMENT SYSTEM ====================
+    let cart = [];
+
+    const foodItems = {
+      1: {
+        id: 1,
+        name: "Fresh & Healthy Meals",
+        type: "veg",
+        image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80",
+        location: "Connaught Place, New Delhi",
+        items: ["Veg Biryani - 10 plates", "Fresh Salads - 5 bowls", "Roti Packs - 15 pieces"],
+        feeds: "25-30",
+        restaurant: "Spicy Bites"
+      },
+      2: {
+        id: 2,
+        name: "Protein Rich Meals", 
+        type: "non-veg",
+        image: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80",
+        location: "Khan Market, New Delhi",
+        items: ["Chicken Curry - 8 plates", "Biryani Rice - 12 plates", "Mutton Dishes - 6 plates"],
+        feeds: "20-25",
+        restaurant: "Urban Tandoor"
+      },
+      3: {
+        id: 3,
+        name: "North Indian Thali",
+        type: "veg",
+        image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80",
+        location: "Rajouri Garden, Delhi", 
+        items: ["Dal Makhani - 8 plates", "Roti Packs - 15 pieces", "Rice Bowls - 10 plates"],
+        feeds: "15-20",
+        restaurant: "Delhi Darbar"
+      },
+      4: {
+        id: 4,
+        name: "Sea Food Special",
+        type: "non-veg",
+        image: "https://images.unsplash.com/photo-1606755962773-d324e38334b4?auto=format&fit=crop&w=400&q=80",
+        location: "Saket, New Delhi",
+        items: ["Fish Curry - 6 plates", "Prawn Masala - 8 plates", "Steamed Rice - 10 plates"],
+        feeds: "18-22",
+        restaurant: "Coastal Flavors"
+      }
+    };
+
+    // Add item to cart
+    function addToCart(foodId) {
+      console.log("Adding to cart:", foodId);
+      const foodItem = foodItems[foodId];
+      if (!foodItem) {
+        console.error("Food item not found:", foodId);
+        return;
+      }
+
+      // Check if item already in cart
+      const existingItemIndex = cart.findIndex(item => item.id === foodId);
+      
+      if (existingItemIndex !== -1) {
+        // Item already in cart, increase quantity
+        cart[existingItemIndex].quantity += 1;
+        console.log("Increased quantity to:", cart[existingItemIndex].quantity);
+      } else {
+        // New item, add to cart with quantity 1
+        cart.push({
+          ...foodItem,
+          quantity: 1
+        });
+        console.log("Added new item to cart");
+      }
+      
+      updateCartUI();
+      
+      // Show success feedback
+      const button = event.target.closest('.add-to-cart-btn');
+      if (button) {
+        const originalText = button.innerHTML;
+        button.innerHTML = '<span class="material-icons">check</span> Added!';
+        button.style.background = 'linear-gradient(135deg, #4caf50, #66bb6a)';
+        
+        setTimeout(() => {
+          button.innerHTML = originalText;
+          button.style.background = 'linear-gradient(135deg, #2e7d32, #4caf50)';
+        }, 1500);
+      }
+    }
+
+    // Remove item from cart (decrease quantity)
+    function removeFromCart(foodId) {
+      console.log("Removing from cart:", foodId);
+      const existingItemIndex = cart.findIndex(item => item.id === foodId);
+      
+      if (existingItemIndex !== -1) {
+        if (cart[existingItemIndex].quantity > 1) {
+          // Decrease quantity
+          cart[existingItemIndex].quantity -= 1;
+          console.log("Decreased quantity to:", cart[existingItemIndex].quantity);
+        } else {
+          // Remove item completely
+          cart.splice(existingItemIndex, 1);
+          console.log("Removed item completely");
+        }
+      }
+      
+      updateCartUI();
+    }
+
+    // Remove item completely from cart
+    function removeItemCompletely(foodId) {
+      console.log("Removing item completely:", foodId);
+      cart = cart.filter(item => item.id !== foodId);
+      updateCartUI();
+    }
+
+    // Update cart UI
+    function updateCartUI() {
+      console.log("Updating cart UI, cart items:", cart);
+      const cartCount = document.getElementById('cartCount');
+      const cartItems = document.getElementById('cartItems');
+      const emptyCart = document.getElementById('emptyCart');
+      const totalItems = document.getElementById('totalItems');
+      const totalPeople = document.getElementById('totalPeople');
+      const requestBtn = document.getElementById('requestPickupBtn');
+
+      if (!cartCount || !cartItems || !emptyCart || !totalItems || !totalPeople || !requestBtn) {
+        console.error("Cart elements not found");
+        return;
+      }
+
+      // Calculate total quantity (sum of all item quantities)
+      const totalQuantity = cart.reduce((total, item) => total + item.quantity, 0);
+      
+      // Update cart count
+      cartCount.textContent = totalQuantity;
+
+      // Show/hide empty cart message
+      if (cart.length === 0) {
+        emptyCart.style.display = 'block';
+        cartItems.innerHTML = '<div class="empty-cart" id="emptyCart"><span class="material-icons">shopping_cart</span><p>Your cart is empty</p><p>Add food items to request pickup</p></div>';
+        requestBtn.disabled = true;
+        totalItems.textContent = '0';
+        totalPeople.textContent = '0';
+        return;
+      }
+
+      emptyCart.style.display = 'none';
+
+      // Update cart items
+      let cartHTML = '';
+      let totalPeopleCount = 0;
+
+      cart.forEach(item => {
+        const people = parseInt(item.feeds.split('-')[0]);
+        totalPeopleCount += (people * item.quantity);
+        
+        cartHTML += `
+          <div class="cart-item">
+            <div class="cart-item-image">
+              <img src="${item.image}" alt="${item.name}">
+            </div>
+            <div class="cart-item-details">
+              <h4>${item.name}</h4>
+              <p class="restaurant-name">${item.restaurant}</p>
+              <span class="cart-item-type ${item.type}">${item.type === 'veg' ? '🍃 VEG' : '🍗 NON-VEG'}</span>
+              <div class="quantity-controls">
+                <button class="quantity-btn" onclick="removeFromCart(${item.id})">-</button>
+                <span class="quantity">${item.quantity}</span>
+                <button class="quantity-btn" onclick="addToCart(${item.id})">+</button>
+              </div>
+            </div>
+            <button class="remove-item" onclick="removeItemCompletely(${item.id})" title="Remove completely">
+              <span class="material-icons">delete</span>
+            </button>
+          </div>
+        `;
+      });
+
+      cartItems.innerHTML = cartHTML;
+      totalItems.textContent = totalQuantity;
+      totalPeople.textContent = totalPeopleCount;
+      requestBtn.disabled = false;
+    }
+
+    // Toggle cart visibility
+    function toggleCart() {
+      const cartSidebar = document.getElementById('cartSidebar');
+      if (cartSidebar) {
+        cartSidebar.style.display = cartSidebar.style.display === 'none' ? 'block' : 'block';
+      }
+    }
+
+    // Request pickup from cart
+    function requestPickupFromCart() {
+      console.log("Requesting pickup, cart:", cart);
+      if (cart.length === 0) {
+        alert("⚠️ Your cart is empty!");
+        return;
+      }
+
+      const restaurantList = [...new Set(cart.map(item => item.restaurant))].join(', ');
+      const totalQuantity = cart.reduce((total, item) => total + item.quantity, 0);
+      const totalPeople = document.getElementById('totalPeople').textContent;
+
+      if (confirm(`🚚 Request pickup for ${totalQuantity} food items from ${cart.length} different restaurants?\n\nRestaurants: ${restaurantList}\n\nThis will feed approximately ${totalPeople} people.`)) {
+        // Show success message
+        alert(`✅ Pickup request submitted successfully!\n\n• ${totalQuantity} food items\n• ${cart.length} restaurants\n• Feeding ${totalPeople} people\n\nOur team will coordinate the pickup and contact you shortly.`);
+        
+        // Save pickup request
+        const pickupRequest = {
+          items: [...cart], // Copy cart items
+          timestamp: new Date().toISOString(),
+          status: 'pending',
+          totalPeople: totalPeople,
+          totalItems: totalQuantity,
+          restaurantCount: cart.length
+        };
+        
+        let requests = JSON.parse(localStorage.getItem('ngoPickupRequests')) || [];
+        requests.push(pickupRequest);
+        localStorage.setItem('ngoPickupRequests', JSON.stringify(requests));
+        
+        // Clear cart
+        cart = [];
+        updateCartUI();
+      }
+    }
+
+    // Food filtering function
+    function filterFood(type) {
+      const cards = document.querySelectorAll('.food-card');
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      
+      // Update active filter button
+      filterBtns.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      // Filter cards
+      cards.forEach(card => {
+        if (type === 'all' || card.dataset.type === type) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // Initialize cart when NGO dashboard loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize cart if we're on NGO dashboard
+      if (document.getElementById('ngoDashboardPage')) {
+        updateCartUI();
+      }
+    });
+
+    // ==================== EXISTING FUNCTIONS ====================
+    // GSTIN handling
+    function toggleGSTIN(){
+      const type=document.getElementById("userType").value;
+      document.getElementById("gstinContainer").style.display=(type==="restaurant")?"block":"none";
+    }
+
+    function validateGSTIN(input){
+      input.value=input.value.toUpperCase();
+      const regex=/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      const status=document.getElementById("gstinStatus");
+      if(!input.value.trim()){status.textContent="";return;}
+      if(regex.test(input.value)){status.textContent="✔️";status.className="gstin-status gstin-valid";}
+      else{status.textContent="❌";status.className="gstin-status gstin-invalid";}
+    }
+
+    // Registration
+    function registerUser(){
+      const type=document.getElementById('userType').value;
+      const phone=document.getElementById('phone').value.trim();
+      const pin=document.getElementById('pincode').value.trim();
+      const gstin=document.getElementById('gstin').value.trim().toUpperCase();
+      const regex=/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+
+      if(!/^[0-9]{10}$/.test(phone)){alert("⚠️ Enter valid 10-digit phone number.");return;}
+      if(!/^[0-9]{6}$/.test(pin)){alert("⚠️ Enter valid 6-digit pincode.");return;}
+      if(type==="restaurant"){
+        if(!gstin){alert("⚠️ Please enter GSTIN for your restaurant.");return;}
+        if(!regex.test(gstin)){alert("❌ Invalid GSTIN format.");return;}
+      }
+
+      const user={
+        type,org:document.getElementById('orgName').value,
+        addr:document.getElementById('address').value,
+        pin,phone,gstin,
+        pass:document.getElementById('password').value
+      };
+      if(!user.type||!user.org||!user.addr||!user.pin||!user.phone||!user.pass){
+        alert("Please fill all fields!");return;
+      }
+      localStorage.setItem("feedpathUser",JSON.stringify(user));
+      alert("✅ Sign Up successful! Please login now.");showLogin();
+    }
+
+    // Login
+    function loginUser(){
+      const phone=document.getElementById('loginPhone').value;
+      const pass=document.getElementById('loginPassword').value;
+      const saved=JSON.parse(localStorage.getItem("feedpathUser"));
+      if(!saved){alert("No user found. Please sign up first.");return;}
+      if(saved.phone===phone&&saved.pass===pass){
+        alert("✅ Login successful!");
+        if(saved.type==="restaurant") showSubscription();
+        else showNGODashboard();
+      }else alert("❌ Invalid phone or password.");
+    }
+
+    function resetPassword(){
+      const phone=document.getElementById("resetPhone").value.trim();
+      const newPass=document.getElementById("newPassword").value.trim();
+      const saved=JSON.parse(localStorage.getItem("feedpathUser"));
+      if(!saved){alert("❌ No user found.");return;}
+      if(saved.phone===phone){
+        saved.pass=newPass;
+        localStorage.setItem("feedpathUser",JSON.stringify(saved));
+        alert("✅ Password reset successful!");
+        showLogin();
+      }else alert("⚠️ Phone number not registered.");
+    }
+
+    function selectPlan(plan){
+      localStorage.setItem("feedpathPlan",plan);
+      alert(`✅ Subscription successful for ${plan}`);
+      showDashboard();
+    }
+
+    // Smart Pickup Logic
+    let dishes = [], quantities = [];
+    function enterDishes(){
+      const count=parseInt(document.getElementById("dishCount").value);
+      if(isNaN(count)||count<1){alert("⚠️ Please enter a valid number of dishes.");return;}
+      dishes=[]; quantities=[];
+      for(let i=0;i<count;i++){
+        let dish=prompt(`Enter name of dish ${i+1}:`);
+        if(!dish){alert("Dish name cannot be empty.");return;}
+        dishes.push(dish.trim());
+      }
+      for(let i=0;i<dishes.length;i++){
+        let qty=prompt(`Enter number of plates for ${dishes[i]}:`);
+        if(!qty||isNaN(qty)||qty<=0){alert("Enter valid number of plates.");return;}
+        quantities.push(qty);
+      }
+      showDishSummary();
+    }
+
+    function showDishSummary(){
+      const div=document.getElementById("dishSummary");
+      let html="<h3 style='color:#2e7d32;'>Dish Summary:</h3><ul style='padding-left:20px'>";
+      for(let i=0;i<dishes.length;i++) html+=`<li>${dishes[i]} - ${quantities[i]} plates</li>`;
+      html+="</ul>";
+      div.innerHTML=html;
+      div.style.display="block";
+    }
+
+    function submitPickup(){
+      const time=document.getElementById("pickupTime").value;
+      if(!time){alert("⚠️ Please select a pickup time.");return;}
+      if(dishes.length===0){alert("⚠️ Please add dishes first.");return;}
+      document.getElementById("successMsg").style.display="block";
+      document.getElementById("dishCount").value="";
+      document.getElementById("pickupTime").value="";
+      document.getElementById("notes").value="";
+      document.getElementById("dishSummary").style.display="none";
+      alert("✅ Pickup submitted successfully!");
+    }
+  </script>
+</body>
+</html>
